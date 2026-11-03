@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>С Днем народного единства!</title>
+    <!-- Подключаем библиотеку VK Bridge -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #b30000;
+            --secondary-color: #003366;
+            --accent-gold: #d4af37;
+            --bg-light: #fffdf9;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #eef2f7 0%, #d5e0f2 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            /* Отступ сверху под системные кнопки VK Mini Apps */
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+
+        header {
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            width: 100%;
+            /* Увеличенный верхний отступ, чтобы крестик ВК не перекрывал заголовок */
+            padding: 38px 15px 20px 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 0.5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            margin: 8px 0 0 0;
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        nav {
+            margin: 15px 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 0 10px;
+        }
+
+        nav button {
+            background-color: white;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1 1 auto;
+            min-width: 95px;
+            text-align: center;
+        }
+
+        nav button.active {
+            background-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 51, 102, 0.3);
+        }
+
+        .container {
+            max-width: 700px;
+            width: 92%;
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            margin-bottom: 25px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.35s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .banner-art {
+            width: 100%;
+            height: 165px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .banner-art svg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 8px;
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        p {
+            line-height: 1.55;
+            font-size: 1rem;
+            color: #2c3e50;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 520px) {
+            .card-grid { grid-template-columns: repeat(3, 1fr); }
+            header h1 { font-size: 1.9rem; }
+            .container { padding: 28px; }
+            .banner-art { height: 200px; }
+        }
+
+        .interactive-card {
+            background: var(--bg-light);
+            border: 2px solid var(--accent-gold);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .interactive-card:active {
+            background: #fff3d1;
+            transform: scale(0.97);
+        }
+
+        .interactive-card .icon {
+            font-size: 2rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .interactive-card h3 {
+            margin: 0 0 5px 0;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .interactive-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .value-detail {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 10px;
+            background: #eef5ff;
+            border-left: 4px solid var(--secondary-color);
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .fireworks-btn {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+            width: 100%;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+
+        .fireworks-btn:active {
+            transform: scale(0.97);
+        }
+
+        .share-btn {
+            background: #0077FF;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0, 119, 255, 0.3);
+        }
+
+        .share-btn:active {
+            transform: scale(0.97);
+        }
+
+        #message-box {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: var(--primary-color);
+            min-height: 28px;
+            font-size: 1.05rem;
+            padding: 0 10px;
+            transition: opacity 0.2s;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 9999;
+            pointer-events: none;
+            border-radius: 2px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(105vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 12px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🇷🇺 С Днем народного единства!</h1>
+        <p>4 ноября — праздник силы духа и согласия</p>
+    </header>
+
+    <nav>
+        <button onclick="switchPage('home')" id="btn-home" class="active">Главная</button>
+        <button onclick="switchPage('history')" id="btn-history">О празднике</button>
+        <button onclick="switchPage('values')" id="btn-values">Смыслы</button>
+    </nav>
+
+    <div class="container">
+        <!-- Главная страница -->
+        <div id="home" class="page active">
+            <div class="banner-art">
+                <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#1a2a6c"/>
+                            <stop offset="50%" stop-color="#b21f1f"/>
+                            <stop offset="100%" stop-color="#fdbb2d"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="800" height="300" fill="url(#sky)"/>
+                    <circle cx="150" cy="80" r="45" fill="none" stroke="#ffd700" stroke-width="3" stroke-dasharray="6 8"/>
+                    <circle cx="150" cy="80" r="25" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="4 6"/>
+                    <circle cx="650" cy="70" r="50" fill="none" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="8 8"/>
+                    <circle cx="650" cy="70" r="30" fill="none" stroke="#ffd700" stroke-width="3" stroke-dasharray="5 6"/>
+                    <circle cx="480" cy="50" r="35" fill="none" stroke="#7bed9f" stroke-width="3" stroke-dasharray="5 7"/>
+                    <polygon points="370,120 400,50 430,120" fill="#800000"/>
+                    <polygon points="400,32 404,43 415,43 406,50 410,60 400,53 390,60 394,50 385,43 396,43" fill="#ffd700"/>
+                    <rect x="365" y="120" width="70" height="180" fill="#990000"/>
+                    <circle cx="400" cy="155" r="18" fill="#222" stroke="#ffd700" stroke-width="3"/>
+                    <line x1="400" y1="155" x2="400" y2="143" stroke="#ffd700" stroke-width="2"/>
+                    <line x1="400" y1="155" x2="410" y2="155" stroke="#ffd700" stroke-width="2"/>
+                    <path d="M240,220 C240,170 290,170 290,220 Z" fill="#d4af37"/>
+                    <rect x="250" y="220" width="30" height="80" fill="#a52a2a"/>
+                    <path d="M510,220 C510,170 560,170 560,220 Z" fill="#1e90ff"/>
+                    <rect x="520" y="220" width="30" height="80" fill="#a52a2a"/>
+                    <rect x="0" y="240" width="800" height="60" fill="#8b0000"/>
+                    <path d="M0,260 Q400,220 800,260 L800,272 Q400,232 0,272 Z" fill="#ffffff"/>
+                    <path d="M0,272 Q400,232 800,272 L800,284 Q400,244 0,284 Z" fill="#0039a6"/>
+                    <path d="M0,284 Q400,244 800,284 L800,296 Q400,256 0,296 Z" fill="#d52b1e"/>
+                </svg>
+            </div>
+
+            <h2>С праздником!</h2>
+            <p>Уважаемые коллеги и друзья! Поздравляем вас с государственным праздником — Днем народного единства. Этот день напоминает нам о том, как важны сплоченность, взаимовыручка и общая ответственность за судьбу нашей страны.</p>
+            <p>Пусть в каждом доме царят мир, согласие, благополучие и уверенность в завтрашнем дне!</p>
+            
+            <button class="fireworks-btn" onclick="triggerFireworks()">✨ Зажечь праздничный салют</button>
+            <button class="share-btn" onclick="shareApp()">📢 Поделиться открыткой в ВК</button>
+            <div id="message-box"></div>
+        </div>
+
+        <!-- Страница истории -->
+        <div id="history" class="page">
+            <div class="banner-art">
+                <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="histBg" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#f6d365"/>
+                            <stop offset="100%" stop-color="#fda085"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="800" height="300" fill="url(#histBg)"/>
+                    <circle cx="680" cy="80" r="50" fill="#fff5cc" opacity="0.7"/>
+                    <path d="M0,250 Q250,180 500,240 T800,220 L800,300 L0,300 Z" fill="#c0392b"/>
+                    <polygon points="400,60 470,90 455,190 400,235 345,190 330,90" fill="#8b0000" stroke="#ffd700" stroke-width="5"/>
+                    <text x="400" y="155" font-size="38" font-weight="bold" fill="#ffd700" text-anchor="middle" font-family="serif">1612</text>
+                </svg>
+            </div>
+
+            <h2>Историческая справка</h2>
+            <p>День народного единства учрежден в память о событиях 1612 года, когда народное ополчение под предводительством Кузьмы Минина и Дмитрия Пожарского освободило Москву от иноземных захватчиков.</p>
+            <p>Это историческое событие стало примером невероятного единения всего народа независимо от происхождения, вероисповедания и социального статуса ради спасения и защиты Отечества.</p>
+        </div>
+
+        <!-- Страница ценностей -->
+        <div id="values" class="page">
+            <div class="banner-art">
+                <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="valBg" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#2980b9"/>
+                            <stop offset="100%" stop-color="#6dd5fa"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="800" height="300" fill="url(#valBg)"/>
+                    <circle cx="400" cy="150" r="95" fill="#ffffff" opacity="0.2"/>
+                    <circle cx="400" cy="150" r="65" fill="#ffd700"/>
+                    <circle cx="280" cy="200" r="20" fill="#fff"/>
+                    <path d="M250,270 Q280,220 310,270 Z" fill="#e74c3c"/>
+                    <circle cx="400" cy="190" r="22" fill="#fff"/>
+                    <path d="M365,270 Q400,215 435,270 Z" fill="#ffffff"/>
+                    <circle cx="520" cy="200" r="20" fill="#fff"/>
+                    <path d="M490,270 Q520,220 550,270 Z" fill="#0039a6"/>
+                    <rect x="0" y="265" width="800" height="35" fill="#27ae60"/>
+                </svg>
+            </div>
+
+            <h2>Главные ценности</h2>
+            <p>Нажмите на любую карточку ниже, чтобы открыть описание:</p>
+            <div class="card-grid">
+                <div class="interactive-card" onclick="showValue('Единство — это общая сила, способная преодолеть любые преграды и трудности.')">
+                    <span class="icon">🤝</span>
+                    <h3>Единство</h3>
+                    <p>Сила в сплоченности</p>
+                </div>
+                <div class="interactive-card" onclick="showValue('Согласие — залог мира, стабильности и созидательного развития общества.')">
+                    <span class="icon">🕊️</span>
+                    <h3>Согласие</h3>
+                    <p>Мир и понимание</p>
+                </div>
+                <div class="interactive-card" onclick="showValue('Родина — наш общий дом, который мы бережем, ценим и развиваем вместе.')">
+                    <span class="icon">🇷🇺</span>
+                    <h3>Родина</h3>
+                    <p>Общий дом для всех</p>
+                </div>
+            </div>
+            <div id="value-detail-box" class="value-detail"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 | С Днем народного единства!</p>
+    </footer>
+
+    <script>
+        // Инициализация VK Mini App
+        if (window.vkBridge) {
+            vkBridge.send('VKWebAppInit');
+        }
+
+        function switchPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('nav button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            document.getElementById('btn-' + pageId).classList.add('active');
+
+            if (window.vkBridge) {
+                vkBridge.send('VKWebAppTapticSelectionChanged').catch(() => {});
+            }
+        }
+
+        function showValue(text) {
+            const box = document.getElementById('value-detail-box');
+            box.style.display = 'block';
+            box.textContent = text;
+            if (window.vkBridge) {
+                vkBridge.send('VKWebAppTapticImpactOccurred', { style: 'light' }).catch(() => {});
+            }
+        }
+
+        function triggerFireworks() {
+            if (window.vkBridge) {
+                vkBridge.send('VKWebAppTapticNotificationOccurred', { type: 'success' }).catch(() => {});
+            }
+
+            const msg = document.getElementById('message-box');
+            const greetings = [
+                "🎆 Ура! С праздником единства и согласия!",
+                "✨ Пусть процветает наша страна!",
+                "🌟 Здоровья, мира и добра каждому дому!",
+                "🎉 С 4 ноября! Вместе мы непобедимы!"
+            ];
+            const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+            msg.style.opacity = 0;
+            setTimeout(() => {
+                msg.textContent = randomGreeting;
+                msg.style.opacity = 1;
+            }, 150);
+
+            const colors = ['#ffffff', '#0039a6', '#d52b1e', '#ffd700', '#ff416c'];
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3500);
+            }
+        }
+
+        function shareApp() {
+            if (window.vkBridge) {
+                vkBridge.send('VKWebAppShare').catch(() => {});
+            } else {
+                alert('Функция доступна внутри приложения ВКонтакте');
+            }
+        }
+    </script>
+</body>
+</html>
